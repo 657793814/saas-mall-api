@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.liuzd.soft</groupId>
-    <artifactId>saas-saler-admin</artifactId>
+    <artifactId>saas-mall-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>saas-saler-admin</name>
-    <description>saas-saler-admin</description>
+    <name>saas-mall-api</name>
+    <description>saas-mall-api</description>
     <url/>
     <licenses>
         <license/>
@@ -303,7 +303,7 @@
                 <version>${spring.boot.version}</version>
                 <configuration>
                     <!-- 指定该Main Class为全局的唯一入口 -->
-                    <mainClass>${groupId}.SaasSalerAdminApplication</mainClass>
+                    <mainClass>${groupId}.SaasMallApiApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

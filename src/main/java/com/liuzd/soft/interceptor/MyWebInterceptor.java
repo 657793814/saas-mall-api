@@ -2,29 +2,29 @@ package com.liuzd.soft.interceptor;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.google.common.collect.ImmutableSet;
+import com.liuzd.soft.annotation.NoLogin;
 import com.liuzd.soft.config.DynamicDataSource;
 import com.liuzd.soft.consts.GlobalConstant;
 import com.liuzd.soft.context.ThreadContextHolder;
 import com.liuzd.soft.dto.token.TokenInfo;
 import com.liuzd.soft.enums.RetEnums;
 import com.liuzd.soft.exception.MyException;
-import com.liuzd.soft.service.impl.LoginServiceImpl;
+import com.liuzd.soft.service.impl.BuyerServiceImpl;
 import com.liuzd.soft.utils.SignUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jodd.util.StringUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Set;
 import java.util.UUID;
 
@@ -50,10 +50,7 @@ public class MyWebInterceptor implements HandlerInterceptor {
     private static final Set<String> DEFAULT_NO_TENANT_CODE_URI_PREFIXES = ImmutableSet.of(
             "/swagger",
             "/actuator",
-            "/test",
-            "/call_service",
-            "/hello_world",
-            "/api/search"
+            "/test"
     );
 
     // 无需token的接口前缀
@@ -65,12 +62,14 @@ public class MyWebInterceptor implements HandlerInterceptor {
     );
 
     private DynamicDataSource dynamicDataSource;
-    private LoginServiceImpl loginServiceImpl;
+    private BuyerServiceImpl buyerServiceImpl;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
-        //check and set tenantCode
-        checkAndSetTenantCode(request);
+
+        if (!checkNoLogin(handler)) {
+            verifyToken(request);
+        }
 
         //设置TraceId
         setTraceId(request);
@@ -78,38 +77,31 @@ public class MyWebInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        // 清除MDC中的traceId，防止内存泄漏
-        MDC.remove(GlobalConstant.LOGTRACE_TRACEID);
-        // 清除ThreadContextHolder中的内容
-        ThreadContextHolder.clear();
+    private boolean checkNoLogin(Object handler) {
+        if (handler instanceof HandlerMethod) {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            //1.获取目标类上的目标注解（可判断目标类是否存在该注解）
+            NoLogin annotationInClass = AnnotationUtils.findAnnotation(handlerMethod.getBeanType(), NoLogin.class);
+            if (ObjectUtil.isNotNull(annotationInClass) && annotationInClass.value()) {
+                return true;
+            }
+
+            //2.获取目标方法上的目标注解（可判断目标方法是否存在该注解）
+            NoLogin annotationInMethod = AnnotationUtils.findAnnotation(handlerMethod.getMethod(), NoLogin.class);
+            if (ObjectUtil.isNotNull(annotationInMethod) && annotationInMethod.value()) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public void checkAndSetTenantCode(HttpServletRequest request) throws IOException {
-        String uri = request.getRequestURI();
-        // 内置的无租户code接口名单
-        if (DEFAULT_NO_TENANT_CODE_URIS.contains(uri)) {
-            return;
-        }
-        if (matchUriPrefix(uri, DEFAULT_NO_TENANT_CODE_URI_PREFIXES)) {
-            return;
-        }
-
-        //set tenantCode and dataSource
-        setCurrentDataSource(request);
-
-        //验证token
-        checkToken(request);
-    }
-
-    private void checkToken(HttpServletRequest request) {
+    /**
+     * 验证登录态
+     *
+     * @param request
+     */
+    private void verifyToken(HttpServletRequest request) {
         if (matchUriPrefix(request.getRequestURI(), NO_TOKEN_URI_PREFIXES)) {
-            return;
-        }
-
-        // 如果是multipart请求，跳过token验证
-        if (isMultipartRequest(request)) {
             return;
         }
 
@@ -129,13 +121,9 @@ public class MyWebInterceptor implements HandlerInterceptor {
         }
 
         //通过token 获取登录信息
-        TokenInfo tokenInfo = loginServiceImpl.getTokenInfo(token);
+        TokenInfo tokenInfo = buyerServiceImpl.getTokenInfo(token);
         if (ObjectUtils.isEmpty(tokenInfo)) {
             throw MyException.exception(RetEnums.LOGIN_EXPIRE);
-        }
-
-        if (!ThreadContextHolder.getTenantCode().equals(tokenInfo.getTenantCode())) {
-            throw MyException.exception(RetEnums.LOGIN_EXPIRE, "租户信息校验失败");
         }
 
         //校验成功 将tokenInfo 设置到线程上下文中
@@ -143,69 +131,12 @@ public class MyWebInterceptor implements HandlerInterceptor {
 
     }
 
-    /**
-     * 判断是否为multipart请求
-     *
-     * @param request
-     * @return
-     */
-    private boolean isMultipartRequest(HttpServletRequest request) {
-        return request instanceof MultipartHttpServletRequest ||
-                (request.getContentType() != null &&
-                        request.getContentType().startsWith("multipart/"));
-    }
-
-    /**
-     * 设置当前数据源
-     *
-     * @param request
-     */
-    private void setCurrentDataSource(HttpServletRequest request) {
-
-        //打印请求头
-        Enumeration<String> headerNames = request.getHeaderNames();
-        if (headerNames != null) {
-            log.info("======= 请求头信息开始 =======");
-            while (headerNames.hasMoreElements()) {
-                String headerName = headerNames.nextElement();
-                String headerValue = request.getHeader(headerName);
-                log.info("{}: {}", headerName, headerValue);
-            }
-            log.info("======= 请求头信息结束 =======");
-        }
-
-        if (ObjectUtil.isNotEmpty(ThreadContextHolder.getTenantCode())) {
-            dynamicDataSource.switchTenant(ThreadContextHolder.getTenantCode());
-            return;
-        }
-
-        //判断请求头是否有特性的tenantCode
-        String tenantCode = request.getHeader(GlobalConstant.HEADER_TENANT_CODE);
-        if (StringUtil.isNotBlank(tenantCode)) {
-            dynamicDataSource.switchTenant(tenantCode);
-            ThreadContextHolder.putTenantCode(tenantCode);
-            return;
-        }
-
-        //判断请求参数是否有tenantCode
-        tenantCode = request.getParameter(GlobalConstant.REQUEST_PARAM_TENANT_CODE_KEY);
-        if (StringUtil.isNotBlank(tenantCode)) {
-            dynamicDataSource.switchTenant(tenantCode);
-            ThreadContextHolder.putTenantCode(tenantCode);
-            return;
-        }
-
-        //判断请求参数是否有tenantId
-        String tenantId = request.getParameter(GlobalConstant.REQUEST_PARAM_TENANT_ID_KEY);
-        if (StringUtil.isNotBlank(tenantId)) {
-            tenantCode = dynamicDataSource.switchTenantByTenantId(tenantId);
-            ThreadContextHolder.putTenantCode(tenantCode);
-            return;
-        }
-
-        //没有tenantCode抛出异常
-        throw MyException.exception(RetEnums.UNKNOWN_TENANT_REQUEST);
-
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        // 清除MDC中的traceId，防止内存泄漏
+        MDC.remove(GlobalConstant.LOGTRACE_TRACEID);
+        // 清除ThreadContextHolder中的内容
+        ThreadContextHolder.clear();
     }
 
     /**

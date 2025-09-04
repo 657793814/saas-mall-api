@@ -8,41 +8,23 @@ networks:
 services:
   saas-app1:
     image: openjdk:17
-    container_name: saas-saler-admin-1
+    container_name: saas-mall-api-1
     networks:
       - monitor
     working_dir: /app
     volumes:
-      - ./target/saas-saler-admin-0.0.1-SNAPSHOT.jar:/app/app.jar
+      - ./target/saas-mall-api-0.0.1-SNAPSHOT.jar:/app/app.jar
       - ./start.sh:/app/start.sh
     ports:
-      - "${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
+      - "${SERVER_PORT:-8070}:${SERVER_PORT:-8070}"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - JAVA_OPTS=-Xmx512m -Xms256m
-      - SERVER_PORT=${SERVER_PORT:-8080}
+      - SERVER_PORT=${SERVER_PORT:-8070}
     command: [ "sh", "-c", "./start.sh" ]
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  saas-app2:
-    image: openjdk:17
-    container_name: saas-saler-admin-2
-    networks:
-      - monitor
-    working_dir: /app
-    volumes:
-      - ./target/saas-saler-admin-0.0.1-SNAPSHOT.jar:/app/app.jar
-      - ./start.sh:/app/start.sh
-    ports:
-      - "${SERVER_PORT:-8081}:${SERVER_PORT:-8081}"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - JAVA_OPTS=-Xmx512m -Xms256m
-      - SERVER_PORT=${SERVER_PORT:-8081}
-    command: [ "sh", "-c", "./start.sh" ]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
 
 

@@ -30,6 +30,10 @@ public class IdUtils {
         return GlobalConstant.OPENID_PREFIX + TokenUtils.generateStr(23);
     }
 
+    public static String generateBuyerUUId() {
+        return GlobalConstant.BUYERID_PREFIX + TokenUtils.generateStr(23);
+    }
+
     public static String generateUnionId(long number) {
         return GlobalConstant.UNION_ID_PREFIX + padNumber(number, 23);
     }

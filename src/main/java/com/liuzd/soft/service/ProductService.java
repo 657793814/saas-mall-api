@@ -1,10 +1,12 @@
 package com.liuzd.soft.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.liuzd.soft.dto.PChinaRegionDto;
 import com.liuzd.soft.dto.product.PProductCategoryDto;
-import com.liuzd.soft.dto.shipping.PShippingTemplateDto;
 import com.liuzd.soft.vo.page.PageResult;
-import com.liuzd.soft.vo.product.*;
+import com.liuzd.soft.vo.product.ProductDetailResp;
+import com.liuzd.soft.vo.product.ProductPageReq;
+import com.liuzd.soft.vo.product.ProductPageResp;
 
 import java.util.List;
 
@@ -16,41 +18,12 @@ import java.util.List;
  */
 public interface ProductService {
 
-    PageResult<ProductPageResp> page(ProductPageReq req);
+    PageResult<ProductPageResp> productList(ProductPageReq productPageReq);
 
-    EditProductResp detail(Integer productId) throws JsonProcessingException;
+    List<PProductCategoryDto> categoryList();
 
-    void createProduct(CreateProductReq createProductReq) throws JsonProcessingException;
+    ProductDetailResp productDetail(Integer productId) throws JsonProcessingException;
 
-    void editProduct(CreateProductReq createProductReq) throws JsonProcessingException;
+    List<PChinaRegionDto> areaData();
 
-    PageResult<SpecDataResp> specData(SpecDataPageReq req);
-
-    PageResult<SpecDataResp> specPage(SpecDataPageReq req);
-
-    void createSpecValue(AddSpecValueReq req);
-
-    void batchAddSpec(BatchSaveSpecReq req);
-
-    void batchAddSpecValue(BatchSaveSpecReq req);
-
-    void updateSpecTypeStatus(UpdateSpecTypeReq req);
-
-    void updateSpecValueStatus(UpdateSpecValueReq req);
-
-    void updateProductStatus(UpdateProductStatusReq req);
-
-    void updateSkuStatus(UpdateSkuStatusReq req);
-
-    PageResult<PShippingTemplateDto> shippingTemplatePage(ShippingPageReq req);
-
-    List<PShippingTemplateDto> getShippingTemplateData();
-
-    void createShippingTemplate(CreateShippingTemplateReq req);
-
-    void editShippingTemplate(CreateShippingTemplateReq req);
-
-    void delShippingTemplate(Integer id);
-
-    List<PProductCategoryDto> getProductCategoryData();
 }

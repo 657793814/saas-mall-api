@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * 商品分页响应结构
@@ -25,6 +24,7 @@ public class ProductPageResp {
     private BigDecimal salePrice;
     private BigDecimal costPrice;
     private int enable;
-    private List<PageSkuResp> children;
+    private Long saleNum;
+    private String category;
 
 }

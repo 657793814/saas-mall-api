@@ -69,4 +69,8 @@ public class PProductsEntity {
     @TableField(value = "`shipping_template_id`")
     private Integer shippingTemplateId;
 
+
+    @TableField(value = "`sale_num`")
+    private Long saleNum;
+
 }

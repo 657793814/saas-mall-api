@@ -1,7 +1,7 @@
 package com.liuzd.soft.exception;
 
 import com.liuzd.soft.enums.RetEnums;
-import com.liuzd.soft.vo.rets.ResultMessage;
+import com.liuzd.soft.vo.ResultMessage;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.bind.BindException;

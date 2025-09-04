@@ -1,5 +1,6 @@
 package com.liuzd.soft.dto.token;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,14 +14,14 @@ import java.io.Serializable;
  * @desc
  */
 @Data
+@JsonSerialize
 @NoArgsConstructor
 @AllArgsConstructor
 public class TokenInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String tenantCode;
-    private String openid;
-    private String userCode;
+    private Integer uid;
+    private String uuid;
     private String userName;
     private String randStr;
     private Long timestamp;

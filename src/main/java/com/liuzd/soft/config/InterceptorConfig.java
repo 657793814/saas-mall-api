@@ -1,7 +1,8 @@
 package com.liuzd.soft.config;
 
 import com.liuzd.soft.interceptor.MyWebInterceptor;
-import com.liuzd.soft.service.impl.LoginServiceImpl;
+import com.liuzd.soft.service.impl.BuyerServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -12,15 +13,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 @AutoConfigureAfter({DynamicDataSourceConfig.class})
+@RequiredArgsConstructor
 public class InterceptorConfig implements WebMvcConfigurer {
 
     private final DynamicDataSource dynamicDataSource;
-    private final LoginServiceImpl loginServiceImpl;
+    private final BuyerServiceImpl buyerServiceImpl;
 
-    public InterceptorConfig(DynamicDataSource dynamicDataSource, LoginServiceImpl loginServiceImpl) {
-        this.dynamicDataSource = dynamicDataSource;
-        this.loginServiceImpl = loginServiceImpl;
-    }
 
     /**
      * 配置拦截的请求，与不拦截的请求
@@ -36,7 +34,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
         MyWebInterceptor myWebInterceptor = new MyWebInterceptor();
         myWebInterceptor.setDynamicDataSource(dynamicDataSource);
-        myWebInterceptor.setLoginServiceImpl(loginServiceImpl);
+        myWebInterceptor.setBuyerServiceImpl(buyerServiceImpl);
         registry.addInterceptor(myWebInterceptor)
                 .addPathPatterns(addPathPatterns)
                 .excludePathPatterns(excludePathPatterns);

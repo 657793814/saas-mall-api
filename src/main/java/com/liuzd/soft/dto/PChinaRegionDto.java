@@ -1,5 +1,6 @@
 package com.liuzd.soft.dto;
 
+import com.liuzd.soft.entity.PChinaRegionEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,4 +32,12 @@ public class PChinaRegionDto {
     private Timestamp createdAt;
 
     private Timestamp updatedAt;
+
+    public PChinaRegionDto(PChinaRegionEntity pChinaRegionEntity) {
+        this.id = pChinaRegionEntity.getId();
+        this.code = pChinaRegionEntity.getCode();
+        this.name = pChinaRegionEntity.getName();
+        this.level = pChinaRegionEntity.getLevel();
+        this.parentCode = pChinaRegionEntity.getParentCode();
+    }
 }

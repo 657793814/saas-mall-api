@@ -21,7 +21,7 @@ public class PageResult<T> {
     private int current;
     private int size;
     private List<T> records;
-    private int pages;
+    private long pages;
 
     public PageResult(List<T> records, long total, int current, int size) {
         this.records = records;

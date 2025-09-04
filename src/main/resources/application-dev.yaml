@@ -1,5 +1,5 @@
 server:
-  port: 8079
+  port: 8070
 
 docker:
   localhost: http://host.docker.internal  #docker 请求宿主机服务的地址，非docker本地ip
