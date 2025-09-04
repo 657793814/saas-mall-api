@@ -7,10 +7,12 @@ import com.liuzd.soft.consts.GlobalConstant;
 import com.liuzd.soft.context.ThreadContextHolder;
 import com.liuzd.soft.dao.PBuyerAddressDao;
 import com.liuzd.soft.dao.PBuyerDao;
+import com.liuzd.soft.dao.PChinaRegionDao;
 import com.liuzd.soft.dto.PBuyerDto;
 import com.liuzd.soft.dto.token.TokenInfo;
 import com.liuzd.soft.entity.PBuyerAddressEntity;
 import com.liuzd.soft.entity.PBuyerEntity;
+import com.liuzd.soft.entity.PChinaRegionEntity;
 import com.liuzd.soft.enums.RetEnums;
 import com.liuzd.soft.exception.MyException;
 import com.liuzd.soft.service.BuyerService;
@@ -24,8 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -43,6 +44,7 @@ public class BuyerServiceImpl implements BuyerService {
     final PBuyerDao pBuyerDao;
     final PBuyerAddressDao pBuyerAddressDao;
     final RedisTemplate redisTemplate;
+    final PChinaRegionDao pChinaRegionDao;
 
     @Override
     public RegisterResp register(RegisterReq req) {
@@ -128,8 +130,41 @@ public class BuyerServiceImpl implements BuyerService {
         if (CollUtil.isEmpty(list)) {
             return ret;
         }
-        return list.stream().map(AddressResp::new).collect(Collectors.toList());
 
+        // 提取省市区的ID
+        List<Integer> provinceIds = list.stream().map(PBuyerAddressEntity::getProvince).collect(Collectors.toList());
+        List<Integer> cityIds = list.stream().map(PBuyerAddressEntity::getCity).collect(Collectors.toList());
+        List<Integer> districtIds = list.stream().map(PBuyerAddressEntity::getDistrict).collect(Collectors.toList());
+
+        // 合并所有ID到一个列表中，去重
+        Set<Integer> allRegionIds = new HashSet<>();
+        allRegionIds.addAll(provinceIds);
+        allRegionIds.addAll(cityIds);
+        allRegionIds.addAll(districtIds);
+
+        //查询数据
+        QueryWrapper<PChinaRegionEntity> queryWrapper2 = new QueryWrapper<>();
+        queryWrapper2.in("id", allRegionIds);
+        List<PChinaRegionEntity> regionList = pChinaRegionDao.selectList(queryWrapper2);
+        Map<Integer, String> regionMap = regionList.stream().collect(Collectors.toMap(PChinaRegionEntity::getId, PChinaRegionEntity::getName));
+
+        list.stream().forEach(item -> {
+            AddressResp resp = new AddressResp(item);
+            resp.setAddressId(item.getId());
+            resp.setReceiverName(item.getName());
+            resp.setReceiverPhone(item.getMobile());
+            resp.setProvinceId(item.getProvince());
+            resp.setCityId(item.getCity());
+            resp.setDistrictId(item.getDistrict());
+            resp.setProvince(regionMap.get(item.getProvince()));
+            resp.setCity(regionMap.get(item.getCity()));
+            resp.setDistrict(regionMap.get(item.getDistrict()));
+            resp.setDetailAddress(item.getDetail());
+            resp.setIsDefault(item.getIsDefault() == 1);
+
+            ret.add(resp);
+        });
+        return ret;
     }
 
 

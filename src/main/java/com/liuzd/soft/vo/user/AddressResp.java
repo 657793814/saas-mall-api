@@ -28,10 +28,13 @@ public class AddressResp {
     private String receiverPhone;
     @JsonProperty
     private Integer provinceId;
+    private String province;
     @JsonProperty
     private Integer cityId;
+    private String city;
     @JsonProperty
     private Integer districtId;
+    private String district;
     @JsonProperty("detailAddress")
     private String detailAddress;
     private Boolean isDefault;
