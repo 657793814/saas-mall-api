@@ -26,4 +26,14 @@ public class WxPayServiceImpl extends PayService {
         this.outTradeNo = "wx_" + IdUtils.generateOutTradeNo();
         super.createPay();
     }
+
+    @Override
+    public void doPay(String tradeNo) {
+        log.info("weixin doPay");
+    }
+
+    @Override
+    public void queryPay(String tradeNo) {
+        log.info("weixin queryPay");
+    }
 }

@@ -26,4 +26,14 @@ public class ZfbPayServiceImpl extends PayService {
         this.outTradeNo = "zfb_" + IdUtils.generateOutTradeNo();
         super.createPay();
     }
+
+    @Override
+    public void doPay(String tradeNo) {
+        log.info("zhifubao doPay");
+    }
+
+    @Override
+    public void queryPay(String tradeNo) {
+        log.info("zhifubao queryPay");
+    }
 }

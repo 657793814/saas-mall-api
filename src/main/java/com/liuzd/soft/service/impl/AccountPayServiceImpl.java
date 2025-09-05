@@ -26,4 +26,15 @@ public class AccountPayServiceImpl extends PayService {
         this.outTradeNo = "my_" + IdUtils.generateOutTradeNo();
         super.createPay();
     }
+
+    @Override
+    public void doPay(String tradeNo) {
+        log.info("account doPay");
+    }
+
+    @Override
+    public void queryPay(String tradeNo) {
+        log.info("account queryPay");
+    }
+
 }
