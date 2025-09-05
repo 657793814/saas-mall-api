@@ -1,5 +1,6 @@
-package com.liuzd.soft.service;
+package com.liuzd.soft.service.impl;
 
+import com.liuzd.soft.vo.CaptchaResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

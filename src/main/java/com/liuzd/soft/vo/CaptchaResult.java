@@ -1,4 +1,4 @@
-package com.liuzd.soft.service;
+package com.liuzd.soft.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
