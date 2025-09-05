@@ -3,7 +3,9 @@ package com.liuzd.soft.api;
 import com.liuzd.soft.annotation.NoLogin;
 import com.liuzd.soft.enums.RetEnums;
 import com.liuzd.soft.service.CalculateStrategies;
+import com.liuzd.soft.service.PayService;
 import com.liuzd.soft.service.impl.CalculateStrategiesFactory;
+import com.liuzd.soft.service.impl.PayStrategiesFactory;
 import com.liuzd.soft.vo.ResultMessage;
 import com.liuzd.soft.vo.strategies.CalculateParam;
 import jodd.util.StringUtil;
@@ -42,6 +44,19 @@ public class TestApi {
         calculateParam.setBuyNum((int) Math.floor(Math.random() * 1000));
         strategies.initData(calculateParam);
         strategies.calculate();
+        return ResultMessage.success("exec success");
+    }
+
+    @RequestMapping(path = "/pay")
+    public ResultMessage<Object> pay(@RequestParam(value = "name", required = true, defaultValue = "") String name) {
+        if (StringUtil.isBlank(name)) {
+            return ResultMessage.fail(RetEnums.PARAMETER_NOT_VALID.getCode(), RetEnums.PARAMETER_NOT_VALID.getMessage());
+        }
+        PayService payService = PayStrategiesFactory.strategiesMap.get(PayStrategiesFactory.PAY_STRATEGIES_PREFIX + name);
+        if (ObjectUtils.isEmpty(payService)) {
+            return ResultMessage.fail(RetEnums.PARAMETER_NOT_VALID.getCode(), "策略不存在");
+        }
+        payService.createPay();
         return ResultMessage.success("exec success");
     }
 

@@ -49,4 +49,12 @@ public class IdUtils {
     public static String generateSkuCode() {
         return GlobalConstant.SKU_ID_PREFIX + TokenUtils.generateStr(7) + System.currentTimeMillis();
     }
+
+    public static String generateTradeNo() {
+        return TokenUtils.generateStr(24) + System.currentTimeMillis();
+    }
+
+    public static String generateOutTradeNo() {
+        return TokenUtils.generateStr(16) + System.currentTimeMillis();
+    }
 }
