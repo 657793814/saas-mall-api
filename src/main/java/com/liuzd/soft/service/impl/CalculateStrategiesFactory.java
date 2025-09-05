@@ -30,7 +30,7 @@ public class CalculateStrategiesFactory {
 
     private List<CalculateStrategies> strategieList;
 
-    public static final String GLOBAL_STRATEGIES_PREFIX = "CALCULATE_STRATEGIES_PREFIX_";
+    public static final String CALCULATE_STRATEGIES_PREFIX = "CALCULATE_STRATEGIES_PREFIX_";
 
     public static final Map<String, CalculateStrategies> strategiesMap = new HashMap<>();
 
@@ -56,7 +56,7 @@ public class CalculateStrategiesFactory {
                 continue;
             }
             log.info("目标策略类:{} 加载成功", targetClass.getName());
-            strategiesMap.put(GLOBAL_STRATEGIES_PREFIX + strategyName, strategies);
+            strategiesMap.put(CALCULATE_STRATEGIES_PREFIX + strategyName, strategies);
         }
     }
 }

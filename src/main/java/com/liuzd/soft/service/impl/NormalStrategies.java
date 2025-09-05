@@ -1,9 +1,16 @@
 package com.liuzd.soft.service.impl;
 
 import com.liuzd.soft.annotation.StrategiesAnnotation;
+import com.liuzd.soft.enums.RetEnums;
+import com.liuzd.soft.exception.MyException;
 import com.liuzd.soft.service.CalculateStrategies;
+import com.liuzd.soft.vo.strategies.CalculateParam;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @author: liuzd
@@ -13,11 +20,28 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
+@Data
 @StrategiesAnnotation(name = CalculateStrategiesFactory.STRATEGIES_NORMAL)
 public class NormalStrategies implements CalculateStrategies {
 
+    protected BigDecimal price;
+    protected CalculateParam calculateParam;
+
+    @Override
+    public void initData(CalculateParam calculateParam) {
+        //todo 设置价格
+        this.calculateParam = calculateParam;
+        if (Objects.isNull(this.calculateParam)) {
+            throw MyException.exception(RetEnums.FAIL, "参数异常");
+        }
+        if (Objects.isNull(this.calculateParam.getSkuId())) {
+            throw MyException.exception(RetEnums.FAIL, "参数异常");
+        }
+        setPrice(BigDecimal.valueOf(100));
+    }
+
     @Override
     public void calculate() {
-        log.info("策略 {} 计算价格 =============>", CalculateStrategiesFactory.STRATEGIES_NORMAL);
+        log.info("策略 {} 计算价格====> buyNum:{}, price:{}, total_price:{}", CalculateStrategiesFactory.STRATEGIES_NORMAL, this.calculateParam.getBuyNum(), getPrice(), getPrice().doubleValue() * this.calculateParam.getBuyNum());
     }
 }
