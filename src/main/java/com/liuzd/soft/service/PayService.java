@@ -4,7 +4,6 @@ import com.liuzd.soft.utils.IdUtils;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 /**
  * @author: liuzd
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
  * @email: liuzd2025@qq.com
  * @desc
  */
-@Service
 @Slf4j
 @Data
 @RequiredArgsConstructor
