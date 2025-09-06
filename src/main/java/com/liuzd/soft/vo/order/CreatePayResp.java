@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @JsonSerialize
 public class CreatePayResp<T> {
-    private Integer payType;
+    private String payType;
     private String orderNo;
     private String tradeNo; //内部交易单号
     private T extra;  //第三方交易模型

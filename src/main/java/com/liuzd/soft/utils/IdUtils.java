@@ -55,7 +55,7 @@ public class IdUtils {
     }
 
     public static String generateTradeNo() {
-        return TokenUtils.generateStr(24) + System.currentTimeMillis();
+        return "trade" + TokenUtils.generateStr(24) + System.currentTimeMillis();
     }
 
     public static String generateOutTradeNo() {

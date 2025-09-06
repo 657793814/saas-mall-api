@@ -111,8 +111,7 @@ public class OrderApi {
         if (Objects.isNull(payService)) {
             return ResultMessage.fail(RetEnums.PARAMETER_NOT_VALID.getCode(), "支付方式在暂不支持");
         }
-        payService.createPay(createPayReq);
-        return ResultMessage.success(null);
+        return ResultMessage.success(payService.createPay(createPayReq));
     }
 
     /**

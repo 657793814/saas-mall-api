@@ -1,10 +1,12 @@
 package com.liuzd.soft.service.impl;
 
 import com.liuzd.soft.annotation.PayStrategiesAnnotation;
+import com.liuzd.soft.dao.POrdersDao;
 import com.liuzd.soft.dao.PTradeDao;
 import com.liuzd.soft.service.PayService;
 import com.liuzd.soft.utils.IdUtils;
 import com.liuzd.soft.vo.order.CreatePayReq;
+import com.liuzd.soft.vo.order.CreatePayResp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,15 +22,16 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @PayStrategiesAnnotation(name = PayStrategiesFactory.PAY_STRATEGIES_ZHIFUBAO)
 public class ZfbPayServiceImpl extends PayService {
-    public ZfbPayServiceImpl(PTradeDao pTradeDao) {
-        super(pTradeDao);
+
+    public ZfbPayServiceImpl(PTradeDao pTradeDao, POrdersDao pOrdersDao) {
+        super(pTradeDao, pOrdersDao);
     }
 
     @Override
-    public void createPay(CreatePayReq req) {
+    public CreatePayResp createPay(CreatePayReq req) {
         this.payType = PayStrategiesFactory.PAY_STRATEGIES_ZHIFUBAO;
         this.outTradeNo = "zfb_" + IdUtils.generateOutTradeNo();
-        super.createPay(req);
+        return super.createPay(req);
     }
 
     @Override

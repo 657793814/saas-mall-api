@@ -42,6 +42,10 @@ public class DateUtils {
         return new Date(System.currentTimeMillis());
     }
 
+    public static Date getFormatDate(long value) {
+        return new Date(System.currentTimeMillis() + value * 1000);
+    }
+
     /**
      * 返回格式化的当前日期时间字符串 (yyyy-MM-dd HH:mm:ss)
      *
@@ -78,6 +82,6 @@ public class DateUtils {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DEFAULT_PATTERN);
         return dateTime.format(formatter);
     }
-    
+
 }
 

@@ -14,4 +14,5 @@ import lombok.Data;
 public class CreatePayReq {
     private String payType;
     private String orderNo;
+    private String payPwd;
 }

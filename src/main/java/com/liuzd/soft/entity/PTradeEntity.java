@@ -10,6 +10,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * 支付交易表
@@ -71,11 +72,11 @@ public class PTradeEntity {
      * 创建支付单时间
      */
     @TableField("create_time")
-    private Timestamp createTime;
+    private Date createTime;
 
     /**
      * 超时支付时间，默认是创建时间+半小时
      */
     @TableField("out_pay_time")
-    private Timestamp outPayTime;
+    private Date outPayTime;
 }
