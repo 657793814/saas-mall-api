@@ -7,6 +7,8 @@ import com.liuzd.soft.service.PayService;
 import com.liuzd.soft.service.impl.CalculateStrategiesFactory;
 import com.liuzd.soft.service.impl.PayStrategiesFactory;
 import com.liuzd.soft.vo.ResultMessage;
+import com.liuzd.soft.vo.order.CalculateOrderItem;
+import com.liuzd.soft.vo.order.CreatePayReq;
 import com.liuzd.soft.vo.strategies.CalculateParam;
 import jodd.util.StringUtil;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Arrays;
 
 /**
  * @author: liuzd
@@ -37,14 +41,27 @@ public class TestApi {
             return ResultMessage.fail(RetEnums.PARAMETER_NOT_VALID.getCode(), "策略不存在");
         }
         CalculateParam calculateParam = new CalculateParam();
-        calculateParam.setProductId(1);
-        calculateParam.setSkuId(1);
-        calculateParam.setGroupId(1);
-        calculateParam.setSecKillId(1);
-        calculateParam.setBuyNum((int) Math.floor(Math.random() * 1000));
-        strategies.initData(calculateParam);
+        calculateParam.setUid(1);
+        calculateParam.setGroupId(0);
+        calculateParam.setSecKillId(0);
+        calculateParam.setCouponId(1);
+        calculateParam.setAddressId(1);
+
+        CalculateOrderItem orderItem = new CalculateOrderItem();
+        orderItem.setProductId(1);
+        orderItem.setSkuId(1);
+        orderItem.setBuyNum((int) Math.floor(Math.random() * 1000));
+
+        CalculateOrderItem orderItem2 = new CalculateOrderItem();
+        orderItem2.setProductId(1);
+        orderItem2.setSkuId(2);
+        orderItem2.setBuyNum((int) Math.floor(Math.random() * 1000));
+
+        calculateParam.setOrderItems(Arrays.asList(orderItem, orderItem2));
+        strategies.setCalculateParam(calculateParam);
+        strategies.initData();
         strategies.calculate();
-        return ResultMessage.success("exec success");
+        return ResultMessage.success(strategies.calculateParam);
     }
 
     @RequestMapping(path = "/pay")
@@ -56,7 +73,10 @@ public class TestApi {
         if (ObjectUtils.isEmpty(payService)) {
             return ResultMessage.fail(RetEnums.PARAMETER_NOT_VALID.getCode(), "策略不存在");
         }
-        payService.createPay();
+        CreatePayReq req = new CreatePayReq();
+        req.setOrderNo("order_test_" + System.currentTimeMillis());
+        req.setPayType(name);
+        payService.createPay(req);
         return ResultMessage.success("exec success");
     }
 

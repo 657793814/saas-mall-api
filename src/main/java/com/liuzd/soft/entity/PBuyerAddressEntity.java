@@ -2,6 +2,7 @@ package com.liuzd.soft.entity;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.liuzd.soft.consts.GlobalConstant;
@@ -52,5 +53,6 @@ public class PBuyerAddressEntity {
     /**
      * 是否默认地址 0-否 1-是
      */
+    @TableField("is_default")
     private Integer isDefault;
 }

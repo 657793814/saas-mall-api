@@ -1,6 +1,8 @@
 package com.liuzd.soft.service;
 
+import com.liuzd.soft.dao.PTradeDao;
 import com.liuzd.soft.utils.IdUtils;
+import com.liuzd.soft.vo.order.CreatePayReq;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +22,13 @@ public class PayService {
     public String tradeNo; //内部交易单号，内部交易唯一凭证
     public String outTradeNo; //外部交易号，外部交易唯一凭证
 
+    final PTradeDao pTradeDao;
+
 
     /**
      * 创建支付单
      */
-    public void createPay() {
+    public void createPay(CreatePayReq req) {
         tradeNo = "no_" + IdUtils.generateTradeNo();
         log.info("创建支付单. payType:{}, tradeNo:{} , outTradeNo:{}", this.payType, this.tradeNo, this.outTradeNo);
     }

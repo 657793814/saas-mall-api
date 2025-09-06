@@ -42,6 +42,7 @@ public enum RetEnums {
     VALUATION_TYPE_ERROR(200020, "模板计费类型错误"),
     SHIPPING_TEMPLATE_STATUS_ERROR(200021, "模板计费状态值错误"),
     ADDRESS_NOT_EXIST(200022, "地址信息不存在"),
+    ORDER_NOT_EXIST(200023, "订单不存在"),
     ;
     private final Integer code;
     private final String message;

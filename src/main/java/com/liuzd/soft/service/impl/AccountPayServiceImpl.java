@@ -1,9 +1,10 @@
 package com.liuzd.soft.service.impl;
 
 import com.liuzd.soft.annotation.PayStrategiesAnnotation;
+import com.liuzd.soft.dao.PTradeDao;
 import com.liuzd.soft.service.PayService;
 import com.liuzd.soft.utils.IdUtils;
-import lombok.Data;
+import com.liuzd.soft.vo.order.CreatePayReq;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,17 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
-@Data
 @PayStrategiesAnnotation(name = PayStrategiesFactory.PAY_STRATEGIES_ACCOUNT)
 public class AccountPayServiceImpl extends PayService {
+    public AccountPayServiceImpl(PTradeDao pTradeDao) {
+        super(pTradeDao);
+    }
+
     @Override
-    public void createPay() {
+    public void createPay(CreatePayReq req) {
         this.payType = PayStrategiesFactory.PAY_STRATEGIES_ACCOUNT;
         this.outTradeNo = "my_" + IdUtils.generateOutTradeNo();
-        super.createPay();
+        super.createPay(req);
     }
 
     @Override

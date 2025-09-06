@@ -50,6 +50,10 @@ public class IdUtils {
         return GlobalConstant.SKU_ID_PREFIX + TokenUtils.generateStr(7) + System.currentTimeMillis();
     }
 
+    public static String generateOrderNo() {
+        return "order" + TokenUtils.generateStr(17) + System.currentTimeMillis();
+    }
+
     public static String generateTradeNo() {
         return TokenUtils.generateStr(24) + System.currentTimeMillis();
     }

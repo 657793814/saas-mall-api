@@ -24,9 +24,9 @@ import java.util.Map;
 public class CalculateStrategiesFactory {
 
     //策略key定义
-    final static String STRATEGIES_NORMAL = "normal";  //普通
-    final static String STRATEGIES_GROUP = "group";  //团购
-    final static String STRATEGIES_SEC_KILL = "sec_kill";  //秒杀
+    public final static String STRATEGIES_NORMAL = "normal";  //普通
+    public final static String STRATEGIES_GROUP = "group";  //团购
+    public final static String STRATEGIES_SEC_KILL = "sec_kill";  //秒杀
 
     private List<CalculateStrategies> strategieList;
 

@@ -1,10 +1,24 @@
 package com.liuzd.soft.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.liuzd.soft.consts.GlobalConstant;
+import com.liuzd.soft.context.ThreadContextHolder;
+import com.liuzd.soft.dto.token.TokenInfo;
+import com.liuzd.soft.enums.RetEnums;
+import com.liuzd.soft.service.CalculateStrategies;
+import com.liuzd.soft.service.OrderService;
+import com.liuzd.soft.service.PayService;
+import com.liuzd.soft.service.impl.CalculateStrategiesFactory;
+import com.liuzd.soft.service.impl.PayStrategiesFactory;
 import com.liuzd.soft.vo.ResultMessage;
+import com.liuzd.soft.vo.order.CreateOrderResp;
+import com.liuzd.soft.vo.order.CreatePayReq;
+import com.liuzd.soft.vo.order.CreatePayResp;
+import com.liuzd.soft.vo.strategies.CalculateParam;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 /**
  * 订单相关api
@@ -19,14 +33,38 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class OrderApi {
 
+    final OrderService orderService;
+
+
+    public String getCalculateStrategies(CalculateParam calculateParam) {
+        if (calculateParam.getSecKillId() > 0) {
+            return CalculateStrategiesFactory.CALCULATE_STRATEGIES_PREFIX + CalculateStrategiesFactory.STRATEGIES_SEC_KILL;
+        }
+        if (calculateParam.getGroupId() > 0) {
+            return CalculateStrategiesFactory.CALCULATE_STRATEGIES_PREFIX + CalculateStrategiesFactory.STRATEGIES_GROUP;
+        }
+        return CalculateStrategiesFactory.CALCULATE_STRATEGIES_PREFIX + CalculateStrategiesFactory.STRATEGIES_NORMAL;
+    }
+
     /**
      * 计算价格
      *
      * @return
      */
     @PostMapping(path = "/computer")
-    public ResultMessage<Object> computer() {
-        return ResultMessage.success("success");
+    public ResultMessage<CalculateParam> computer(@RequestBody CalculateParam calculateParam) {
+        TokenInfo tokenInfo = (TokenInfo) ThreadContextHolder.get(GlobalConstant.LOGIN_USER_INFO);
+        calculateParam.setUid(tokenInfo.getUid());
+        CalculateStrategies calculateStrategies = CalculateStrategiesFactory.strategiesMap.get(getCalculateStrategies(calculateParam));
+        if (Objects.isNull(calculateStrategies)) {
+            return ResultMessage.fail(RetEnums.PARAMETER_NOT_VALID.getCode(), "参数错误");
+        }
+        //todo
+        calculateParam.setCouponId(1);
+        calculateStrategies.setCalculateParam(calculateParam);
+        calculateStrategies.initData();
+        calculateStrategies.calculate();
+        return ResultMessage.success(calculateStrategies.getCalculateParam());
     }
 
     /**
@@ -37,8 +75,26 @@ public class OrderApi {
      * @return
      */
     @PostMapping(path = "/confirm")
-    public ResultMessage<Object> confirm() {
-        return ResultMessage.success("success");
+    public ResultMessage<CreateOrderResp> confirm(@RequestBody CalculateParam calculateParam) throws JsonProcessingException {
+        TokenInfo tokenInfo = (TokenInfo) ThreadContextHolder.get(GlobalConstant.LOGIN_USER_INFO);
+        calculateParam.setUid(tokenInfo.getUid());
+        CalculateStrategies calculateStrategies = CalculateStrategiesFactory.strategiesMap.get(getCalculateStrategies(calculateParam));
+        if (Objects.isNull(calculateStrategies)) {
+            return ResultMessage.fail(RetEnums.PARAMETER_NOT_VALID.getCode(), "参数错误");
+        }
+        //todo
+        calculateParam.setCouponId(1);
+        calculateStrategies.setCalculateParam(calculateParam);
+        calculateStrategies.initData();
+        calculateStrategies.calculate();
+
+        //创建订单
+        return ResultMessage.success(orderService.createOrder(calculateParam));
+    }
+
+    @RequestMapping("/pay_detail")
+    public ResultMessage<CreateOrderResp> payDetail(@RequestParam("orderNo") String orderNo) throws JsonProcessingException {
+        return ResultMessage.success(orderService.payDetail(orderNo));
     }
 
     /**
@@ -49,8 +105,14 @@ public class OrderApi {
      * @return
      */
     @PostMapping(path = "/create_pay")
-    public ResultMessage<Object> createPay() {
-        return ResultMessage.success("success");
+    public ResultMessage<CreatePayResp> createPay(@RequestBody CreatePayReq createPayReq) {
+
+        PayService payService = PayStrategiesFactory.strategiesMap.get(PayStrategiesFactory.PAY_STRATEGIES_PREFIX + createPayReq.getPayType());
+        if (Objects.isNull(payService)) {
+            return ResultMessage.fail(RetEnums.PARAMETER_NOT_VALID.getCode(), "支付方式在暂不支持");
+        }
+        payService.createPay(createPayReq);
+        return ResultMessage.success(null);
     }
 
     /**
