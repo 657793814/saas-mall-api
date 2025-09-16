@@ -20,6 +20,7 @@ public class RestTemplateConfig {
      * 配置支持负载均衡的RestTemplate
      *
      * @return
+     * @LoadBalance注解实现负载均衡
      */
     @Bean
     @LoadBalanced
