@@ -162,6 +162,14 @@
             <scope>import</scope>
         </dependency>
 
+        <!-- 加入sentinel-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+            <version>${spring.cloud-alibaba.version}</version>
+        </dependency>
+        
+
         <!--SpringBoot集成druid连接池-->
         <dependency>
             <groupId>com.alibaba</groupId>
