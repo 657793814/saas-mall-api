@@ -68,3 +68,9 @@ ribbon:
   OkToRetryOnAllOperations: false
   MaxAutoRetries: 0
   MaxAutoRetriesNextServer: 1
+
+#feign 服务配置
+feign:
+  # 服务名
+  server-name:
+    saas-buyer-api: saas-buyer-api-${spring.profiles.active}

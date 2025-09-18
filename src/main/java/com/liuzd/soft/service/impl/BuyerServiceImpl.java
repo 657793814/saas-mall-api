@@ -8,18 +8,17 @@ import com.liuzd.soft.context.ThreadContextHolder;
 import com.liuzd.soft.dao.PBuyerAddressDao;
 import com.liuzd.soft.dao.PBuyerDao;
 import com.liuzd.soft.dao.PChinaRegionDao;
-import com.liuzd.soft.dto.PBuyerDto;
 import com.liuzd.soft.dto.token.TokenInfo;
 import com.liuzd.soft.entity.PBuyerAddressEntity;
 import com.liuzd.soft.entity.PBuyerEntity;
 import com.liuzd.soft.entity.PChinaRegionEntity;
 import com.liuzd.soft.enums.RetEnums;
 import com.liuzd.soft.exception.MyException;
+import com.liuzd.soft.feign.BuyerFeignClient;
 import com.liuzd.soft.service.BuyerService;
 import com.liuzd.soft.utils.DateUtils;
 import com.liuzd.soft.utils.IdUtils;
 import com.liuzd.soft.utils.SecureMd5Utils;
-import com.liuzd.soft.utils.TokenUtils;
 import com.liuzd.soft.vo.user.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +44,7 @@ public class BuyerServiceImpl implements BuyerService {
     final PBuyerAddressDao pBuyerAddressDao;
     final RedisTemplate redisTemplate;
     final PChinaRegionDao pChinaRegionDao;
+    final BuyerFeignClient buyerFeignClient;
 
     @Override
     public RegisterResp register(RegisterReq req) {
@@ -77,34 +77,7 @@ public class BuyerServiceImpl implements BuyerService {
 
     @Override
     public LoginResp login(LoginReq loginReq) {
-        QueryWrapper<PBuyerEntity> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("uname", loginReq.getUsername()).or().eq("mobile", loginReq.getUsername());
-        PBuyerEntity buyerEntity = pBuyerDao.selectOne(queryWrapper);
-        Assert.notNull(buyerEntity, () -> MyException.exception(RetEnums.USER_NOT_EXIST));
-
-        if (!SecureMd5Utils.md5WithSalt(loginReq.getPassword(), buyerEntity.getSalt()).equals(buyerEntity.getPassword())) {
-            throw MyException.exception(RetEnums.USERNAME_OR_PWD_ERROR);
-        }
-
-        LoginResp<PBuyerDto> loginResp = new LoginResp();
-        PBuyerDto pBuyerDto = new PBuyerDto();
-        pBuyerDto.setUuid(buyerEntity.getUuid());
-        pBuyerDto.setUname(buyerEntity.getUname());
-        pBuyerDto.setMobile(buyerEntity.getMobile());
-        pBuyerDto.setSex(buyerEntity.getSex());
-        pBuyerDto.setBirth(buyerEntity.getBirth());
-
-        String token = TokenUtils.generateToken();
-        String randStr = TokenUtils.generateRandStr();
-        long timestamp = System.currentTimeMillis();
-
-        loginResp.setToken(token);
-        loginResp.setRandStr(randStr);
-        loginResp.setTimestamp(timestamp);
-        loginResp.setInfo(pBuyerDto);
-        TokenInfo tokenInfo = new TokenInfo(buyerEntity.getId(), buyerEntity.getUuid(), buyerEntity.getUname(), randStr, timestamp);
-        saveToken(token, tokenInfo);
-        return loginResp;
+        return buyerFeignClient.login(loginReq);
     }
 
     public void saveToken(String token, TokenInfo tokenInfo) {
